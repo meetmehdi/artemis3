@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLS Rocket Blueprint - Artemis 3 Mission</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0e17;
+            color: #00ff41;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Grid background */
+        .blueprint-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            background: rgba(0, 255, 65, 0.02);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px #00ff41;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #00cc33;
+            letter-spacing: 4px;
+        }
+
+        .mission-badge {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 40px;
+            border: 2px solid #0088ff;
+            color: #00aaff;
+            font-size: 1.1rem;
+            letter-spacing: 3px;
+        }
+
+        /* Main content grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Blueprint container */
+        .blueprint-container {
+            position: relative;
+            background: #0d1117;
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 30px;
+            min-height: 800px;
+        }
+
+        .blueprint-title {
+            position: absolute;
+            top: -15px;
+            left: 30px;
+            background: #0a0e17;
+            padding: 0 20px;
+            font-size: 1.3rem;
+            letter-spacing: 3px;
+        }
+
+        /* SLS Rocket SVG */
+        .sls-rocket {
+            width: 100%;
+            height: 700px;
+            position: relative;
+        }
+
+        .rocket-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Dimension labels */
+        .dimension-line {
+            position: absolute;
+            border: 1px dashed #00ff41;
+            opacity: 0.6;
+        }
+
+        .dim-label {
+            position: absolute;
+            background: #0a0e17;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+        }
+
+        /* Component labels */
+        .component-label {
+            position: absolute;
+            background: rgba(0, 136, 255, 0.9);
+            color: white;
+            padding: 5px 10px;
+            font-size: 0.85rem;
+            border-radius: 3px;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .component-label::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid rgba(0, 136, 255, 0.9);
+        }
+
+        /* Info panels */
+        .info-panel {
+            background: rgba(0, 255, 65, 0.02);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            color: #00aaff;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #00ff41;
+            letter-spacing: 2px;
+        }
+
+        .spec-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed rgba(0, 255, 65, 0.2);
+        }
+
+        .spec-label {
+            color: #8892b0;
+        }
+
+        .spec-value {
+            color: #00ff41;
+            font-weight: bold;
+        }
+
+        /* Stage indicators */
+        .stage-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            margin: 5px;
+            border: 1px solid;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .stage-1 {
+            border-color: #ff4500;
+            color: #ff6b35;
+            background: rgba(255, 69, 0, 0.1);
+        }
+
+        .stage-2 {
+            border-color: #00aaff;
+            color: #00ccff;
+            background: rgba(0, 170, 255, 0.1);
+        }
+
+        .stage-icps {
+            border-color: #aa00ff;
+            color: #cc66ff;
+            background: rgba(170, 0, 255, 0.1);
+        }
+
+        /* Mission facts */
+        .mission-facts {
+            background: rgba(0, 136, 255, 0.05);
+            border: 2px solid #0088ff;
+            border-radius: 10px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .fact-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 136, 255, 0.2);
+        }
+
+        .fact-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .fact-number {
+            min-width: 50px;
+            height: 50px;
+            background: #0088ff;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        .fact-content h4 {
+            color: #00aaff;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .fact-content p {
+            color: #8892b0;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px solid rgba(0, 255, 65, 0.2);
+            color: #444c56;
+            font-size: 0.85rem;
+        }
+
+        /* Animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Interactive hover effects */
+        .component-label:hover {
+            background: rgba(0, 136, 255, 1);
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed #00ff41;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border: 1px solid #00ff41;
+        }
+
+        /* Technical specs table */
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .specs-table td {
+            padding: 10px;
+            border-bottom: 1px dashed rgba(0, 255, 65, 0.2);
+        }
+
+        .specs-table td:first-child {
+            color: #8892b0;
+            width: 40%;
+        }
+
+        .specs-table td:last-child {
+            color: #00ff41;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .sls-rocket { height: 500px; }
+            .blueprint-container { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="blueprint-bg"></div>
+
+    <div class="container">
+        <header>
+            <h1>SPACE LAUNCH SYSTEM</h1>
+            <p class="subtitle">SLS BLOCK 1 CONFIGURATION</p>
+            <div class="mission-badge">ARTEMIS 3 MISSION</div>
+        </header>
+
+        <div class="main-grid">
+            <!-- Blueprint -->
+            <div class="blueprint-container">
+                <div class="blueprint-title">SLS ROCKET CONFIGURATION - FULL SYSTEM</div>
+                
+                <div class="sls-rocket" id="rocketCanvas">
+                    <!-- SLS Rocket Visualization -->
+                    <svg class="rocket-layer" viewBox="0 0 400 700" preserveAspectRatio="xMidYMid meet">
+                        <!-- ICPS (Interim Cryogenic Propulsion Stage) -->
+                        <g id="icps">
+                            <rect x="160" y="50" width="80" height="40" fill="#aa00ff" opacity="0.8" stroke="#cc66ff" stroke-width="2"/>
+                            <polygon points="200,50 160,90 240,90" fill="#aa00ff" opacity="0.8" stroke="#cc66ff" stroke-width="2"/>
+                            <line x1="160" y1="70" x2="240" y2="70" stroke="#cc66ff" stroke-width="1" opacity="0.6"/>
+                            <line x1="180" y1="60" x2="220" y2="60" stroke="#cc66ff" stroke-width="1" opacity="0.6"/>
+                        </g>
+
+                        <!-- Orion Stage Adapter -->
+                        <g id="adapter">
+                            <rect x="165" y="90" width="70" height="15" fill="#666" opacity="0.8" stroke="#999" stroke-width="1"/>
+                            <line x1="165" y1="98" x2="235" y2="98" stroke="#999" stroke-width="0.5"/>
+                        </g>
+
+                        <!-- Launch Vehicle Stage Adapter -->
+                        <g id="lvsa">
+                            <rect x="155" y="105" width="90" height="20" fill="#333" opacity="0.8" stroke="#666" stroke-width="1"/>
+                            <polygon points="200,105 155,125 245,125" fill="#333" opacity="0.8" stroke="#666" stroke-width="1"/>
+                        </g>
+
+                        <!-- Stage 2 (RL10 Engine) -->
+                        <g id="stage2">
+                            <rect x="140" y="125" width="120" height="180" fill="#0066cc" opacity="0.8" stroke="#3399ff" stroke-width="2"/>
+                            <line x1="140" y1="155" x2="260" y2="155" stroke="#3399ff" stroke-width="1" opacity="0.6"/>
+                            <line x1="140" y1="195" x2="260" y2="195" stroke="#3399ff" stroke-width="1" opacity="0.6"/>
+                            <line x1="140" y1="235" x2="260" y2="235" stroke="#3399ff" stroke-width="1" opacity="0.6"/>
+                            <line x1="140" y1="275" x2="260" y2="275" stroke="#3399ff" stroke-width="1" opacity="0.6"/>
+                            <!-- RL10 Engine -->
+                            <ellipse cx="200" cy="310" rx="25" ry="15" fill="#444" opacity="0.8" stroke="#666" stroke-width="1"/>
+                            <ellipse cx="200" cy="325" rx="20" ry="30" fill="#333" opacity="0.8" stroke="#666" stroke-width="1"/>
+                        </g>
+
+                        <!-- Stage 2 Forward Skirt -->
+                        <g id="forwardSkirt">
+                            <polygon points="140,305 120,350 280,350 260,305" fill="#333" opacity="0.8" stroke="#666" stroke-width="1"/>
+                        </g>
+
+                        <!-- Stage 1 (Core Stage) -->
+                        <g id="stage1">
+                            <rect x="100" y="350" width="200" height="250" fill="#cc3333" opacity="0.8" stroke="#ff6666" stroke-width="2"/>
+                            <line x1="100" y1="425" x2="300" y2="425" stroke="#ff6666" stroke-width="1" opacity="0.6"/>
+                            <line x1="100" y1="500" x2="300" y2="500" stroke="#ff6666" stroke-width="1" opacity="0.6"/>
+                            <line x1="100" y1="575" x2="300" y2="575" stroke="#ff6666" stroke-width="1" opacity="0.6"/>
+                        </g>
+
+                        <!-- RS-25 Engines -->
+                        <g id="engines">
+                            <ellipse cx="130" cy="605" rx="18" ry="35" fill="#666" opacity="0.8" stroke="#999" stroke-width="1"/>
+                            <ellipse cx="200" cy="605" rx="18" ry="35" fill="#666" opacity="0.8" stroke="#999" stroke-width="1"/>
+                            <ellipse cx="270" cy="605" rx="18" ry="35" fill="#666" opacity="0.8" stroke="#999" stroke-width="1"/>
+                            <ellipse cx="165" cy="610" rx="15" ry="30" fill="#555" opacity="0.8" stroke="#888" stroke-width="1"/>
+                            <ellipse cx="235" cy="610" rx="15" ry="30" fill="#555" opacity="0.8" stroke="#888" stroke-width="1"/>
+                        </g>
+
+                        <!-- Boosters (SRBs) -->
+                        <g id="boosters">
+                            <!-- Left Booster -->
+                            <rect x="40" y="350" width="60" height="280" fill="#006600" opacity="0.8" stroke="#33cc33" stroke-width="2"/>
+                            <line x1="40" y1="420" x2="100" y2="420" stroke="#33cc33" stroke-width="1" opacity="0.6"/>
+                            <line x1="40" y1="490" x2="100" y2="490" stroke="#33cc33" stroke-width="1" opacity="0.6"/>
+                            <line x1="40" y1="560" x2="100" y2="560" stroke="#33cc33" stroke-width="1" opacity="0.6"/>
+                            <line x1="40" y1="630" x2="100" y2="630" stroke="#33cc33" stroke-width="1" opacity="0.6"/>
+                            <!-- Nozzle -->
+                            <ellipse cx="70" cy="635" rx="15" ry="25" fill="#222" opacity="0.8" stroke="#555" stroke-width="1"/>
+                            <ellipse cx="70" cy="645" rx="12" ry="20" fill="#111" opacity="0.8" stroke="#444" stroke-width="1"/>
+                            
+                            <!-- Right Booster -->
+                            <rect x="300" y="350" width="60" height="280" fill="#006600" opacity="0.8" stroke="#33cc33" stroke-width="2"/>
+                            <line x1="300" y1="420" x2="360" y2="420" stroke="#33cc33" stroke-width="1" opacity="0.6"/>
+                            <line x1="300" y1="490" x2="360" y2="490" stroke="#33cc33" stroke-width="1" opacity="0.6"/>
+                            <line x1="300" y1="560" x2="360" y2="560" stroke="#33cc33" stroke-width="1" opacity="0.6"/>
+                            <line x1="300" y1="630" x2="360" y2="630" stroke="#33cc33" stroke-width="1" opacity="0.6"/>
+                            <!-- Nozzle -->
+                            <ellipse cx="330" cy="635" rx="15" ry="25" fill="#222" opacity="0.8" stroke="#555" stroke-width="1"/>
+                            <ellipse cx="330" cy="645" rx="12" ry="20" fill="#111" opacity="0.8" stroke="#444" stroke-width="1"/>
+                        </g>
+
+                        <!-- Fairing (Orion spacecraft adapter) -->
+                        <g id="fairing">
+                            <ellipse cx="200" cy="50" rx="60" ry="25" fill="none" stroke="#00ccff" stroke-width="2" stroke-dasharray="5,5"/>
+                            <text x="200" y="35" text-anchor="middle" fill="#00ccff" font-size="10" font-family="Courier New">ORION SPACECRAFT</text>
+                        </g>
+
+                        <!-- Component Labels -->
+                        <text x="200" y="120" text-anchor="middle" fill="#cc66ff" font-size="11" font-weight="bold">ICPS</text>
+                        <text x="200" y="220" text-anchor="middle" fill="#3399ff" font-size="11" font-weight="bold">STAGE 2</text>
+                        <text x="200" y="340" text-anchor="middle" fill="#ff6666" font-size="11" font-weight="bold">SLS CORE STAGE</text>
+                        <text x="70" y="340" text-anchor="middle" fill="#33cc33" font-size="11" font-weight="bold">SRB</text>
+                        <text x="330" y="340" text-anchor="middle" fill="#33cc33" font-size="11" font-weight="bold">SRB</text>
+                        <text x="200" y="650" text-anchor="middle" fill="#999" font-size="10">RS-25 ENGINES (4)</text>
+                        <text x="200" y="45" text-anchor="middle" fill="#00ccff" font-size="9" font-style="italic">ORION</text>
+                    </svg>
+                </div>
+
+                <!-- Component Legend -->
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #cc3333;"></div>
+                        <span>Core Stage (LOX/LH2) - 4 RS-25 Engines</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #006600;"></div>
+                        <span>Solid Rocket Boosters (5-segment) - 3.6M lbs thrust each</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #0066cc;"></div>
+                        <span>Stage 2 (RL10 Engine) - Cryogenic propulsion</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #aa00ff;"></div>
+                        <span>ICPS - Interim Cryogenic Propulsion Stage</span>
+                    </div>
+                </div>
+
+                <!-- Technical Dimensions -->
+                <div class="info-panel" style="margin-top: 20px;">
+                    <div class="panel-title">TECHNICAL DIMENSIONS</div>
+                    <table class="specs-table">
+                        <tr>
+                            <td>Total Height (with Orion)</td>
+                            <td>322 feet / 98.1 meters</td>
+                        </tr>
+                        <tr>
+                            <td>Core Stage Height</td>
+                            <td>212 feet / 64.6 meters</td>
+                        </tr>
+                        <tr>
+                            <td>Core Stage Diameter</td>
+                            <td>27.6 feet / 8.4 meters</td>
+                        </tr>
+                        <tr>
+                            <td>Booster Length</td>
+                            <td>177 feet / 54 meters</td>
+                        </tr>
+                        <tr>
+                            <td>Booster Diameter</td>
+                            <td>12 feet / 3.7 meters</td>
+                        </tr>
+                        <tr>
+                            <td>Stage 2 Diameter</td>
+                            <td>18.8 feet / 5.7 meters</td>
+                        </tr>
+                        <tr>
+                            <td>Fairing Diameter</td>
+                            <td>19.7 feet / 6 meters</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Specification Panel -->
+            <div class="specifications">
+                <div class="info-panel">
+                    <div class="panel-title">SLS BLOCK 1 SPECS</div>
+                    <table class="specs-table">
+                        <tr>
+                            <td class="spec-label">Height</td>
+                            <td class="spec-value">322 ft (98.1 m)</td>
+                        </tr>
+                        <tr>
+                            <td class="spec-label">Diameter</td>
+                            <td class="spec-value">27.6 ft (8.4 m)</td>
+                        </tr>
+                        <tr>
+                            <td class="spec-label">Liftoff Mass</td>
+                            <td class="spec-value">5.75M lbs (2,610,000 kg)</td>
+                        </tr>
+                        <tr>
+                            <td class="spec-label">Thrust (Liftoff)</td>
+                            <td class="spec-value">8.8M lbs (39.2 MN)</td>
+                        </tr>
+                        <tr>
+                            <td class="spec-label">Payload to TLI</td>
+                            <td class="spec-value">59,500 lbs (27,000 kg)</td>
+                        </tr>
+                        <tr>
+                            <td class="spec-label">Payload to TLI (co-manifested)</td>
+                            <td class="spec-value">110,000 lbs (50,000 kg)</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="info-panel">
+                    <div class="panel-title">\n                        PROPULSION SYSTEM</div>
+                    <div class="spec-item">
+                        <span class="spec-label">Core Stage Engines</span>
+                        <span class="spec-value">4x RS-25</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">RS-25 Thrust (each)</span>
+                        <span class="spec-value">512,000 lbf</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">SRBs (2)</span>
+                        <span class="spec-value">5-segment</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">SRB Thrust (each)</span>
+                        <span class="spec-value">3.6M lbf</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Stage 2 Engine</span>
+                        <span class="spec-value">1x RL10B-2</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">RL10 Thrust</span>
+                        <span class="spec-value">24,750 lbf</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Stage 2 Propellant</span>
+                        <span class="spec-value">LOX/LH2</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Stage 2 Burn Time</span>
+                        <span class="spec-value">~1125 sec</span>
+                    </div>
+                </div>
+
+                <div class="info-panel">
+                    <div class="panel-title">MISSION STAGES</div>
+                    <div style="margin-bottom: 15px;">
+                        <span class="stage-badge stage-1">STAGE 1</span>
+                        <span style="color: #8892b0; font-size: 0.85rem;">Liftoff to SRB Separation</span>
+                        <div style="margin-top: 10px; color: #8892b0; font-size: 0.9rem;">
+                            Duration: ~2 min<br>
+                            SRB separation at ~146,000 ft
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <span class="stage-badge stage-1">CORE STAGE</span>
+                        <span style="color: #8892b0; font-size: 0.85rem;">Main Engine Cutoff</span>
+                        <div style="margin-top: 10px; color: #8892b0; font-size: 0.9rem;">
+                            Duration: ~8 min<br>
+                            Core stage separation
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <span class="stage-badge stage-2">STAGE 2 (ICPS)</span>
+                        <span style="color: #8892b0; font-size: 0.85rem;">Orion Parking Orbit</span>
+                        <div style="margin-top: 10px; color: #8892b0; font-size: 0.9rem;">
+                            Duration: ~18 min<br>
+                            Circular orbit insertion
+                        </div>
+                    </div>
+                    <div>
+                        <span class="stage-badge stage-icps">ICPS TRANSLUNAR</span>
+                        <span style="color: #8892b0; font-size: 0.85rem;">Trans-Lunar Injection</span>
+                        <div style="margin-top: 10px; color: #8892b0; font-size: 0.9rem;">
+                            Duration: ~22 min<br>
+                            Escape velocity achieved
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-panel">
+                    <div class="panel-title">PAYLOAD CAPABILITIES</div>
+                    <table class="specs-table">
+                        <tr>
+                            <td class="spec-label">LEO (100 NM)</td>
+                            <td class="spec-value">209,000 lbs</td>
+                        </tr>
+                        <tr>
+                            <td class="spec-label">TLI (with ICPS)</td>
+                            <td class="spec-value">59,500 lbs</td>
+                        </tr>
+                        <tr>
+                            <td class="spec-label">TLI (with EUS)</td>
+                            <td class="spec-value">83,300 lbs</td>
+                        </tr>
+                        <tr>
+                            <td class="spec-label">TMI (Mars)</td>
+                            <td class="spec-value">44,000 lbs</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Artemis 3 Mission Facts -->
+        <div class="mission-facts">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h2 style="color: #00aaff; font-size: 2rem; letter-spacing: 4px; text-transform: uppercase;">ARTEMIS 3 MISSION</h2>
+                <p style="color: #00ff41; margin-top: 10px;">HUMAN LUNAR LANDING - PLANNED 2026</p>
+            </div>
+
+            <div class="fact-item">
+                <div class="fact-number">1</div>
+                <div class="fact-content">
+                    <h4>Historic Firsts</h4>
+                    <p>First crewed lunar landing since Apollo 17 in 1972. First woman and first person of color to walk on the Moon. First use of Starship HLS as the Human Landing System.</p>
+                </div>
+            </div>
+
+            <div class="fact-item">
+                <div class="fact-number">2</div>
+                <div class="fact-content">
+                    <h4>Mission Profile</h4>
+                    <p>Four astronauts will launch on SLS Block 1. Orion will dock with Starship HLS in NRHO (Near-Rectilinear Halo Orbit). Two crew will descend to lunar surface while two remain in orbit for approximately 6.5 days.</p>
+                </div>
+            </div>
+
+            <div class="fact-item">
+                <div class="fact-number">3</div>
+                <div class="fact-content">
+                    <h4>Lunar South Pole</h4>
+                    <p>Landing site in the Shackleton-de Gerlache region of the lunar south pole. Targeting permanently shadowed regions rich in water ice deposits, crucial for future sustainable lunar presence.</p>
+                </div>
+            </div>
+
+            <div class="fact-item">
+                <div class="fact-number">4</div>
+                <div class="fact-content">
+                    <h4>Surface Operations</h4>
+                    <p>Four planned Extravehicular Activities (EVAs). Scientific experiments including VIPER rover precursor studies. Technology demonstrations for ISRU (In-Situ Resource Utilization).</p>
+                </div>
+            </div>
+
+            <div class="fact-item">
+                <div class="fact-number">5</div>
+                <div class="fact-content">
+                    <h4>SLS Block 1 Configuration</h4>
+                    <p>Height: 322 ft | Thrust: 8.8M lbs | Payload to TLI: 59,500 lbs. Powered by 4 RS-25 engines (Space Shuttle heritage), 2 five-segment SRBs, and RL10 Stage 2 engine.</p>
+                </div>
+            </div>
+
+            <div class="fact-item">
+                <div class="fact-number">6</div>
+                <div class="fact-content">
+                    <h4>Program Goals</h4>
+                    <p>Establish sustainable lunar exploration by 2028. Demonstrate technologies for Mars missions. Build Gateway lunar space station. Create long-term human presence on and around the Moon.</p>
+                </div>
+            </div>
+
+            <div class="fact-item">
+                <div class="fact-number">7</div>
+                <div class="fact-content">
+                    <h4>International Collaboration</h4>
+                    <p>Contributions from ESA (European Service Module), CSA (robotics), JAXA (life support), and multiple international partners. Gateway modules from various nations.</p>
+                </div>
+            </div>
+
+            <div class="fact-item">
+                <div class="fact-number">8</div>
+                <div class="fact-content">
+                    <h4>Technological Advances</h4>
+                    <p>New Exploration Upper Stage (EUS) in development for Block 1B. Advanced boosters planned for Block 2. Enhanced avionics, improved thermal protection, and upgraded flight software.</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>SLS TECHNICAL SPECIFICATION | ARTEMIS 3 MISSION PROFILE | DATA AS OF 2026</p>
+            <p>Source: NASA SLS Program Office | All specifications subject to mission updates</p>
+        </footer>
+    </div>
+
+    <script>
+        // Interactive component hover effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const svgElements = document.querySelectorAll('svg rect, svg polygon, svg ellipse');
+            
+            svgElements.forEach(function(el) {
+                el.addEventListener('mouseenter', function(e) {
+                    this.style.opacity = '1';
+                    this.style.stroke = '#00ff41';
+                    this.style.strokeWidth = '3';
+                    this.style.filter = 'drop-shadow(0 0 10px #00ff41)';
+                });
+                
+                el.addEventListener('mouseleave', function(e) {
+                    const originalOpacity = this.getAttribute('opacity') || '0.8';
+                    this.style.opacity = originalOpacity;
+                    const originalStroke = this.getAttribute('stroke') || '#666';
+                    this.style.stroke = originalStroke;
+                    this.style.strokeWidth = this.getAttribute('stroke-width') || '1';
+                    this.style.filter = 'none';
+                });
+            });
+
+            // Animate dimension lines on load
+            setTimeout(function() {
+                const lines = document.querySelectorAll('line');
+                lines.forEach(function(line, index) {
+                    setTimeout(function() {
+                        line.style.strokeDasharray = '5,5';
+                        line.style.animation = 'pulse 2s infinite';
+                    }, index * 50);
+                });
+            }, 500);
+        });
+    </script>
+</body>
+</html>
